@@ -57,10 +57,9 @@ Board.prototype.checkForWinner = function(player) {
     if (this.findSpace(first[0],first[1],first[2]).markedBy == this.findSpace(second[0],second[1],second[2]).markedBy && this.findSpace(second[0],second[1],second[2]).markedBy == this.findSpace(third[0],third[1],third[2]).markedBy && this.findSpace(third[0],third[1],third[2]).markedBy == player.mark) {
       result = true;
       console.log("Game over in checkForWinner");
-
     }
   }
-  // debugger;
+
   return result;
 }
 
@@ -72,6 +71,7 @@ function Game () {
   this.computer = new Player("O");
   this.computersMoves = [];
   this.gameOver = false;
+  this.turnCounter = 1;
 }
 
 Game.prototype.random_coordinates = function() {
@@ -89,37 +89,62 @@ Game.prototype.random_coordinates = function() {
 
 }
 
-
 Game.prototype.turn = function(z, x, y) {
-  if (this.board.findSpace(z, x, y).available) {
-    this.board.findSpace(z, x, y).mark(this.player);
-    this.playersMoves.push(this.board.findSpace(z, x, y));
-  } else {
-    return;
+
+    // #########################################
+    // ############___Player1_VS_PC__###########
+  if ($('input[name="opponent"]:checked').val() === "computer") {
+    // human player1 turn
+    if (this.board.findSpace(z, x, y).available) {
+      this.board.findSpace(z, x, y).mark(this.player);
+      this.playersMoves.push(this.board.findSpace(z, x, y));
+    } else {
+      return;
+    }
+    console.log("Human Move: " + this.board.findSpace(z, x, y).coordinates);
+    console.log($('input[name="opponent"]:checked').val());
+
+
+
+    // computer player turn
+    var compMove = this.random_coordinates();
+    console.log("is Comp Move available?" + compMove.available);
+    compMove.mark(this.computer); // called on space, marks as occupied with computer object
+    this.computersMoves.push(compMove);
+    console.log("Comp Move :" + compMove.coordinates);
+
   }
-  console.log("Human Move: " + this.board.findSpace(z, x, y).coordinates);
-  // if (this.board.checkForWinner(this.player) || this.board.availableSpaces.length === 0) {
-  //   this.gameOver = true;
-  // }
-  var compMove = this.random_coordinates();
-  console.log("is Comp Move available?" + compMove.available);
-  compMove.mark(this.computer); // called on space, marks as occupied with computer object
-  this.computersMoves.push(compMove);
-  console.log("Comp Move :" + compMove.coordinates);
-  // var a = Math.floor(Math.random()*3)+1;
-  // var b = Math.floor(Math.random()*3)+1;
-  // var c = Math.floor(Math.random()*3)+1;
-  // var compMove = this.board.findSpace(a, b, c);
-  // if (compMove.available) {
-  //   compMove.mark(this.computer);
-  //   this.computersMoves.push(compMove);
-  // }
+
+  else if ($('input[name="opponent"]:checked').val() === "human" && this.turnCounter === 1){
+
+    // #########################################
+    // ##########___Player1_VS_Player2__#########
+    // human player 1 turn
+console.log("Welcome to player 1");
+      if (this.board.findSpace(z, x, y).available) {
+        this.board.findSpace(z, x, y).mark(this.player);
+        this.playersMoves.push(this.board.findSpace(z, x, y));
+      }
+    }
+
+    // human player 2 turn
+    else if ($('input[name="opponent"]:checked').val() === "human" && this.turnCounter === -1){
+console.log("Welcome to player 2");
+
+      if (this.board.findSpace(z, x, y).available) {
+        this.board.findSpace(z, x, y).mark(this.computer);
+        this.computersMoves.push(this.board.findSpace(z, x, y));
+      } else {
+        return;
+      }
+
+    } else{}
+
 
   if (this.board.checkForWinner(this.computer) || this.board.availableSpaces.length === 0) {
     this.gameOver = true;
-    // console.log(this.gameOver);
-
   }
+  this.turnCounter = this.turnCounter *-1;
 }
 
 var paths = [];
@@ -197,17 +222,25 @@ $(document).ready(function(){
       console.log(newGame.computersMoves.length);
     }
     $(this).off;
+
+  if(newGame.turnCounter === -1){
+    console.log("coloring player1 square");
+
+    var array2 = newGame.playersMoves[newGame.playersMoves.length-1].coordinates;
+    var selector2 = array2[0].toString() + ", " + array2[1].toString() + ", " + array2[2].toString();
+    document.getElementById(selector2).style.backgroundColor="red";
+  } else {
+    console.log("coloring player2 square");
+
     var array = newGame.computersMoves[newGame.computersMoves.length-1].coordinates; //finds coordinates of the last move of the computer
     var selector = array[0].toString() + ", " + array[1].toString() + ", " + array[2].toString();
     // concats the computer's move array into a string to find the space
     // the computer marked, and then changes the div to blue
     document.getElementById(selector).style.backgroundColor="blue";
-    var array2 = newGame.playersMoves[newGame.playersMoves.length-1].coordinates;
-    var selector2 = array2[0].toString() + ", " + array2[1].toString() + ", " + array2[2].toString();
-    document.getElementById(selector2).style.backgroundColor="red";
+  }
 
-// debugger;
-// || newGame.board.availableSpaces.length === 0
+
+
     if (newGame.board.checkForWinner(newGame.player) || newGame.board.checkForWinner(newGame.computer)) {
       newGame.gameOver = true;
       console.log("Game over in jquery");

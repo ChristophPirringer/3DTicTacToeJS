@@ -1,12 +1,6 @@
 #info {
   display: none;
 }
-/*body {
-  text-align: center;
-}*/
-/*.container {
-  text-align: center;
-}*/
 
 h1, h3 {
   text-align: center;
@@ -41,4 +35,8 @@ h1, h3 {
 
 #win{
   display:none;
+}
+
+#versus{
+  text-align:center;
 }
